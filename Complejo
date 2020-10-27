@@ -1,0 +1,33 @@
+#include "LowPower.h"
+
+#define LUX_CALC_SCALAR   12518931
+#define LUX_CALC_EXPONENT -1.405
+
+int sensor = A0;
+int val = 0;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(0, INPUT); 
+}
+
+void loop() {
+  attachInterrupt(0, pin_ISR, LOW);
+
+  LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
+
+  detachInterrupt(0);
+}
+
+void pin_ISR(){
+  int sensorVal = analogRead(sensor);
+  float aux = (sensorVal/1024.0)*5.0;
+  float aux1 = 5-aux;
+  float aux2 = aux1/aux * 10000.0;
+  float ldrLux = LUX_CALC_SCALAR * pow(aux2, LUX_CALC_EXPONENT);
+
+  Serial.print("Valor del divisor de voltage: ");
+  Serial.print(aux1);
+  Serial.print(". Valor del LDR: ");
+  Serial.println(ldrLux);
+}
